@@ -1,0 +1,150 @@
+1. Project introduction
+“My project is a full-stack URL Shortener application called Shortly. It converts long URLs into short, shareable links such as http://localhost:3000/summer-sale.
+The application also provides a dashboard where users can create links, choose custom aliases, copy generated links, see click counts, and delete links.”
+2. Problem it solves
+“Long URLs are difficult to share, especially in social media, messages, marketing campaigns, or printed material. This application solves that problem by generating compact links. It also tracks how many times a short link is opened, which gives basic engagement analytics.”
+3. Main features
+Create a short URL from any valid http or https destination.
+Generate a random short code automatically.
+Allow users to create custom aliases, for example /portfolio.
+Redirect users from the short URL to the original URL.
+Track total clicks and last-visited time.
+Show all links in a dashboard.
+Copy and delete links.
+Provide a health endpoint for deployment monitoring.
+Example:
+Original URL:
+https://example.com/products/category/summer-sale?id=123
+
+Short URL:
+http://localhost:3000/summer-sale
+When someone opens /summer-sale, they are redirected to the original URL.
+4. Technology stack
+“I used Node.js for both backend logic and serving the frontend. I intentionally built it without external dependencies, using Node’s built-in http, fs, path, and crypto modules.”
+Layer	Technology	Purpose
+Frontend	HTML, CSS, JavaScript	Dashboard UI and API calls
+Backend	Node.js HTTP server	API, redirect logic, validation
+Database for demo	JSON file	Stores links persistently
+ID generation	Node crypto module	Creates secure unique IDs and aliases
+
+5. Architecture
+```mermaid
+flowchart LR
+    U["User / Browser"] --> F["Frontend Dashboard"]
+    F -->|"POST /api/links"| S["Node.js Server"]
+    F -->|"GET /api/links"| S
+    S --> D["data/links.json"]
+
+    V["Link Visitor"] -->|"GET /:code"| S
+    S -->|"Update click count"| D
+    S -->|"302 Redirect"| O["Original destination URL"]
+```
+
+
+
+You can say:
+“The frontend and backend are separated by REST APIs. The frontend never directly reads the database. It calls the Node.js API, and the server is responsible for validation, storage, and redirects.”
+6. Complete workflow
+A. Creating a short link
+User enters a long destination URL.
+Optionally, they provide a custom alias and a campaign label.
+The browser sends a POST /api/links request.
+The server validates the URL.
+If no alias is supplied, the server creates a random code using Node’s cryptographic random generator.
+The server saves the link record to data/links.json.
+The API returns the newly created short URL.
+The dashboard displays it with a Copy button.
+B. Redirecting a short URL
+A visitor opens a link such as http://localhost:3000/summer-sale.
+The Node server checks whether summer-sale exists.
+It increments the click count.
+It records the last visit time.
+It saves the updated record.
+It returns an HTTP 302 redirect response.
+The visitor’s browser opens the original destination URL.
+C. Viewing analytics
+The dashboard calls GET /api/links.
+The backend returns all saved links.
+The frontend calculates and displays:Total number of links
+Total clicks
+Top-performing link
+Per-link click count and last-visited time
+
+7. API explanation
+Method	Endpoint	Explanation
+POST	/api/links	Creates a new short link
+GET	/api/links	Fetches all saved links
+DELETE	/api/links/:id	Deletes a specific link
+GET	/:code	Redirects to the original URL and records a click
+GET	/health	Confirms the application is running
+
+Example create request:
+{
+  "url": "https://example.com/docs",
+  "code": "docs",
+  "title": "Project documentation"
+}
+8. Data model
+Each link is stored like this:
+{
+  "id": "unique-uuid",
+  "code": "summer-sale",
+  "destination": "https://example.com/offer",
+  "title": "Summer campaign",
+  "createdAt": "2026-07-30T10:00:00.000Z",
+  "clicks": 0,
+  "lastVisitedAt": null
+}
+Explain it like this:
+“id is used internally for operations like deletion. code is the public short-link path. destination is the original URL. The remaining fields support dashboard information and analytics.”
+9. Important technical decisions
+Why use 302 redirect?
+“I used a 302 temporary redirect. It is useful because it leaves room for editing a destination later. A 301 permanent redirect can be cached aggressively by browsers, so it is better only when the destination should never change.”
+How do you prevent duplicate aliases?
+“Before saving a custom alias, the server checks whether the same code already exists, ignoring case. If it exists, the API returns a conflict error.”
+How do you validate URLs?
+“The server uses Node’s URL constructor and permits only http: and https: protocols. This prevents malformed URLs and disallows unsupported schemes.”
+How is data persisted safely?
+“The project writes to a temporary file first and then renames it to the final JSON file. This reduces the chance of corrupting the storage file if a write is interrupted.”
+10. Project structure
+url-shortener/
+│
+├── public/
+│   ├── index.html      # Dashboard structure
+│   ├── styles.css      # Responsive design
+│   └── app.js          # Browser logic and API calls
+│
+├── data/
+│   └── links.json      # Created automatically; local storage
+│
+├── server.js           # Backend APIs, validation, redirects
+├── package.json        # Start scripts and project metadata
+└── README.md           # Setup and architecture documentation
+11. Limitations to mention honestly
+This is very important in interviews. Showing that you understand production tradeoffs makes your answer stronger.
+“For a local demo and single-server project, JSON storage is simple and effective. However, it is not suitable for a production service with many users or multiple servers.”
+Production improvements:
+Replace JSON storage with PostgreSQL or MongoDB.
+Add login and user accounts.
+Add ownership so one user cannot view or delete another user’s links.
+Use Redis for caching and rate limiting.
+Add HTTPS and a custom domain.
+Add protection against malicious or phishing links.
+Store detailed click events asynchronously for country, device, and referrer analytics.
+Add automated tests, logging, monitoring, and backups.
+Deploy using Docker, a cloud provider, and a reverse proxy/load balancer.
+12. Strong 60-second interview answer
+“I built Shortly, a full-stack URL shortener application. A user submits a long URL through a responsive dashboard, and the Node.js backend validates it, generates or accepts a custom alias, and stores the record persistently. When someone visits the short URL, the server finds the matching code, updates its click analytics, and sends a 302 redirect to the original destination.  
+I implemented REST APIs for creating, listing, and deleting links, and used clean separation between frontend, backend, and storage responsibilities. For the demo I used JSON persistence to avoid unnecessary dependencies, but for production I would replace it with PostgreSQL, add authentication, Redis-based rate limiting, async analytics, HTTPS, and abuse protection.”
+
+13. Demo flow for an interviewer
+Open the dashboard.
+Paste a long URL.
+Add a custom alias such as my-portfolio.
+Click Shorten link.
+Copy the generated link.
+Open it in another tab.
+Show that it redirects correctly.
+Return to the dashboard.
+Refresh and show that the click count increased.
+Explain the API request and redirect workflow.
