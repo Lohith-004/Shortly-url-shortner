@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Shortly — URL Shortener</title><link rel="stylesheet" href="/styles.css"/></head>
+<body>
+  <main class="shell">
+    <nav><a class="brand" href="/"><span>↗</span> shortly</a><span class="nav-note">Simple links, useful signals.</span></nav>
+    <section class="hero"><p class="eyebrow">YOUR LINK WORKSPACE</p><h1>Make every link<br/><em>go further.</em></h1><p class="lede">Create tidy, memorable URLs and see how they perform — all from one focused dashboard.</p></section>
+    <section class="composer" aria-labelledby="create-title"><div class="section-head"><div><p class="eyebrow">CREATE A LINK</p><h2 id="create-title">Shorten a URL</h2></div><span class="secure">● Local & private</span></div>
+      <form id="link-form"><label>Destination URL<input id="url" type="url" placeholder="https://your-website.com/long-link" required/></label><div class="field-row"><label>Custom alias <span>optional</span><div class="alias-input"><span>/</span><input id="code" type="text" placeholder="summer-sale" maxlength="32"/></div></label><label>Label <span>optional</span><input id="title" type="text" placeholder="Campaign name" maxlength="120"/></label></div><button type="submit"><span>Shorten link</span><b>→</b></button></form>
+      <div id="result" class="result hidden"><span>Ready to share</span><a id="result-url" target="_blank" rel="noreferrer"></a><button id="copy-result" type="button">Copy</button></div><p id="form-error" class="error" role="alert"></p>
+    </section>
+    <section class="dashboard"><div class="metrics"><article><span>Total links</span><strong id="total-links">0</strong></article><article><span>Total clicks</span><strong id="total-clicks">0</strong></article><article><span>Top performer</span><strong id="top-link">—</strong></article></div>
+      <div class="links-header"><div><p class="eyebrow">YOUR LIBRARY</p><h2>Recent links</h2></div><button id="refresh" class="text-button">Refresh ↻</button></div><div id="empty" class="empty">No links yet. Your first short link will appear here.</div><div id="links" class="link-list"></div>
+    </section>
+    <footer>Built for the links you actually share. <span>•</span> <a href="/health">System status</a></footer>
+  </main><script src="/app.js"></script>
+</body></html>
